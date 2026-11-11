@@ -402,6 +402,36 @@
       .x-post-img { width: 100%; display: block; border-radius: 12px; border: 1px solid var(--line); }
 
       .caption-box { min-height: 120px; }
+
+      /* ---------- Post-after-download flow ---------- */
+      .flow-note { margin: 10px 2px 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+      .flow-note strong { color: var(--ink); }
+      .steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+      .step {
+        display: flex; gap: 11px; align-items: flex-start;
+        background: var(--panel-2); border: 1px solid var(--line); border-radius: 11px;
+        padding: 10px 12px; font-size: 13.5px; line-height: 1.4;
+      }
+      .step strong { display: block; font-size: 14px; }
+      .step .step-num {
+        flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--faint); color: #fff; font-size: 13px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center; margin-top: 1px;
+      }
+      .step.done .step-num { background: var(--ok); }
+      .step.active .step-num { background: var(--accent); }
+      .btn-x-post {
+        flex: 1 1 200px; min-height: 52px; border: 0; border-radius: 12px;
+        background: var(--dark-btn); color: var(--dark-btn-ink); text-decoration: none;
+        font-size: 15.5px; font-weight: 800; cursor: pointer; padding: 12px 18px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      }
+      a.btn-primary-quiet { text-decoration: none; }
+      .post-avatar-you {
+        width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto;
+        background: var(--panel-2); border: 1px solid var(--line); color: var(--muted);
+        display: flex; align-items: center; justify-content: center;
+      }
       .action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
       .btn-primary-quiet {
         min-height: 48px; padding: 11px 18px; border-radius: 11px; border: 0;
@@ -490,6 +520,7 @@
             Download banner
           </button>
         </div>
+        <p class="flow-note"><strong>Step 1:</strong> Download your banner. <strong>Step 2:</strong> Post on X and attach the downloaded picture. A ready post appears right after the download.</p>
       </section>
 
       <!-- ============ EDITOR TABS ============ -->
@@ -702,7 +733,7 @@
       <!-- ============ PANEL: SHARE ============ -->
       <section class="panel" id="panel-share" role="tabpanel" aria-labelledby="tab-share" aria-label="Share and caption" hidden>
         <h2>Share &amp; caption</h2>
-        <p class="hint">See how the banner looks on X before you post, copy a ready caption with all your friends tagged, and control the small studio credit on the downloaded banner.</p>
+        <p class="hint">See how the banner looks on X before you post, copy the ready X post with all your friends tagged, and control the small studio credit on the downloaded banner. The same ready post pops up automatically right after every download.</p>
 
         <div class="field">
           <span class="flabel">Preview on X</span>
@@ -716,17 +747,21 @@
 
         <div class="sub-block">
           <div class="field">
-            <label for="captionBox">Ready caption for your post</label>
-            <textarea class="caption-box" id="captionBox" rows="5"></textarea>
+            <label for="captionBox">Ready post for X</label>
+            <textarea class="caption-box" id="captionBox" rows="7"></textarea>
           </div>
           <div class="action-row">
+            <a class="btn-primary-quiet" id="postOnXBtnShare" href="https://x.com/intent/post" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2.6h3.1l-6.8 7.8L23.2 21h-6.3l-4.9-6.4L6.4 21H3.2l7.3-8.3L1.6 2.6h6.4l4.4 5.9 6.5-5.9zm-1.1 16.5h1.7L7.1 4.5H5.3l12.5 14.6z"/></svg>
+              Post on X
+            </a>
             <button class="btn-primary-quiet" id="copyCaptionBtn" type="button">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copy caption
+              Copy post
             </button>
             <button class="btn-ghost" id="regenCaptionBtn" type="button" style="min-height:48px">Regenerate from friends</button>
           </div>
-          <p class="hint" style="margin:10px 0 0">The caption fills itself from your center text and the @handles you added. You can edit it here before copying.</p>
+          <p class="hint" style="margin:10px 0 0">This is the exact post text the Post on X button uses. It tags your friends, thanks @ShoaibCT_, and carries the studio link so everyone can try it. X cannot attach the picture by itself, so download the banner first, then attach it to the post. You can edit the text here before posting.</p>
         </div>
 
         <div class="sub-block">
@@ -781,6 +816,52 @@
           </div>
         </div>
         <p class="hint" style="margin:12px 0 0">This is a preview mock to check the look. Nothing is posted to X from here.</p>
+      </div>
+    </div>
+
+    <!-- ============ POST ON X MODAL (shown right after a download) ============ -->
+    <div class="modal-backdrop" id="postModal" role="dialog" aria-modal="true" aria-label="Your banner is downloaded, post it on X">
+      <div class="modal-card">
+        <div class="modal-head">
+          <strong>Your banner is ready to post</strong>
+          <button class="modal-close" id="postModalClose" type="button" aria-label="Close">×</button>
+        </div>
+
+        <div class="steps">
+          <div class="step done">
+            <span class="step-num" aria-hidden="true">✓</span>
+            <span><strong>Step 1 · Download banner</strong>Done — the picture is saved on your device.</span>
+          </div>
+          <div class="step active">
+            <span class="step-num" aria-hidden="true">2</span>
+            <span><strong>Step 2 · Post on X and attach the picture</strong>Tap Post on X below, then attach the banner picture you just downloaded. X cannot attach it automatically from a link.</span>
+          </div>
+        </div>
+
+        <div class="x-mock">
+          <div class="x-post">
+            <span class="post-avatar-you" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <div class="x-post-main">
+              <div class="x-post-head"><strong>Your post</strong> <span>· ready to share</span></div>
+              <p class="x-post-text" id="postModalText"></p>
+              <img class="x-post-img" id="postModalImg" alt="Your downloaded banner, as it will appear in the post" />
+            </div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <a class="btn-x-post" id="postOnXBtn" href="https://x.com/intent/post" target="_blank" rel="noopener">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2.6h3.1l-6.8 7.8L23.2 21h-6.3l-4.9-6.4L6.4 21H3.2l7.3-8.3L1.6 2.6h6.4l4.4 5.9 6.5-5.9zm-1.1 16.5h1.7L7.1 4.5H5.3l12.5 14.6z"/></svg>
+            Post on X
+          </a>
+          <button class="btn-ghost" id="copyPostBtn" type="button" style="min-height:52px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy post
+          </button>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Post on X opens X with this exact text filled in. Just attach the downloaded picture and hit Post.</p>
       </div>
     </div>
 
@@ -1082,16 +1163,37 @@
           var cols = Math.max(1, Math.ceil(Math.sqrt(n * (W / H))));
           var rows = Math.max(1, Math.ceil(n / cols));
           var cellW = W / cols, cellH = H / rows;
-          var d = Math.min(cellW, cellH) * 0.84 * state.pfpScale;
-          d = Math.min(d, Math.min(cellW, cellH) * 0.97);
+          var cell = Math.min(cellW, cellH);
+          var d = cell * 0.84 * state.pfpScale;
+          d = Math.min(d, cell * 0.97);
+          // Each @handle pill lives under its PFP, inside that friend's own
+          // cell. The pill font scales with the cell size, so it shrinks as
+          // more friends are added and on smaller or squarer banners, and
+          // the PFP shrinks a little to leave the pill room: a pill can
+          // never spill onto a neighbour's PFP or the centre text.
+          var handleFs = 0, pillH = 0, pillGap = 0;
+          if (state.showHandles) {
+            handleFs = Math.max(10, Math.min(cell * 0.085, d * 0.15));
+            pillH = handleFs * 1.55;
+            pillGap = handleFs * 0.3;
+            // paint() enlarges a starred friend's PFP by 1.18x, so cap d with
+            // that factor included: even the star's bigger photo plus its
+            // pill stays inside the cell.
+            d = Math.min(d, (cellW * 0.94) / 1.18, (cellH - pillH - pillGap - cell * 0.02) / 1.18);
+            handleFs = Math.min(handleFs, Math.max(9, (cellH - 1.18 * d) / 1.85));
+            pillH = handleFs * 1.55;
+            pillGap = handleFs * 0.3;
+          }
           var pos = [];
           for (var i = 0; i < n; i++) {
-            var r = Math.floor(i / cols), c = i % cols;
+            var r = Math.floor(i / cols), ci = i % cols;
             var inRow = (r === rows - 1) ? (n - r * cols) : cols;
             var xOff = (W - inRow * cellW) / 2;
-            pos.push({ x: xOff + c * cellW + cellW / 2, y: r * cellH + cellH / 2, d: d });
+            // centre the PFP + pill as one group inside the cell
+            var yOff = handleFs ? Math.max(0, (cellH - (d + pillGap + pillH)) / 2) : 0;
+            pos.push({ x: xOff + ci * cellW + cellW / 2, y: r * cellH + yOff + d / 2, d: d });
           }
-          return { pos: pos, text: text, band: true };
+          return { pos: pos, text: text, band: true, handleFs: handleFs, handleMaxW: cellW * 0.94 };
         }
 
         function layoutArc(n, W, H) {
@@ -1321,15 +1423,33 @@
           }
         }
 
-        function drawHandleLabel(c, item, x, y, d, W, H) {
+        function drawHandleLabel(c, item, x, y, d, W, H, fsCap, maxW) {
           if (!state.showHandles || !item || !item.handle) return;
           var label = item.handle.trim();
           if (!label) return;
           if (label.charAt(0) !== "@") label = "@" + label;
           var fs = Math.max(13, d * 0.17);
+          // Layouts that reserve a cell for each friend (Grid) pass a font
+          // cap and a max pill width, so the pill always fits its cell.
+          if (fsCap) fs = Math.min(fs, Math.max(9, fsCap));
           c.save();
           c.font = "800 " + fs + "px \"Manrope\", sans-serif";
           var tw = c.measureText(label).width;
+          var maxLabelW = Math.max(24, (maxW || W) - fs * 1.1);
+          if (tw > maxLabelW) {
+            var shrink = maxLabelW / tw;
+            if (shrink >= 0.45) {
+              fs = Math.max(9, fs * shrink);
+              c.font = "800 " + fs + "px \"Manrope\", sans-serif";
+              tw = c.measureText(label).width;
+              maxLabelW = Math.max(24, (maxW || W) - fs * 1.1);
+            }
+            if (tw > maxLabelW) {
+              while (label.length > 3 && c.measureText(label + "…").width > maxLabelW) label = label.slice(0, -1);
+              label += "…";
+              tw = c.measureText(label).width;
+            }
+          }
           var pw = tw + fs * 1.1, ph = fs * 1.55;
           var px = Math.max(4, Math.min(W - pw - 4, x - pw / 2));
           var py = y + d / 2 + ph * 0.16;
@@ -1464,10 +1584,6 @@
             var d = item && item.star ? p.d * 1.18 : p.d;
             drawPFP(c, item, p.x, p.y, d);
           });
-          result.pos.forEach(function (p, i) {
-            var item = items[i] || null;
-            if (item) drawHandleLabel(c, item, p.x, p.y, item.star ? p.d * 1.18 : p.d, W, H);
-          });
           if (result.band && (result.text.lines.length || result.text.sub)) {
             var padX = result.text.fs * 0.55, padY = result.text.fs * 0.38;
             var bw = result.text.tw + padX * 2, bh = result.text.th + padY * 2;
@@ -1477,6 +1593,12 @@
             c.fill();
             c.restore();
           }
+          // Handles draw after the centre band so the band never covers
+          // them; the centre text itself still draws last, on top.
+          result.pos.forEach(function (p, i) {
+            var item = items[i] || null;
+            if (item) drawHandleLabel(c, item, p.x, p.y, item.star ? p.d * 1.18 : p.d, W, H, result.handleFs || 0, result.handleMaxW || 0);
+          });
           drawHost(c, W, H, result.text);
           drawTextBlock(c, result.text, W, H);
           drawWatermark(c, W, H);
@@ -1925,24 +2047,29 @@
           var lines = [title];
           if (state.subtitle.trim()) lines.push(state.subtitle.trim());
           if (handles.length) lines.push("", handles.join(" "));
-          lines.push("", "Made with CT Circle Studio by @ShoaibCT_");
+          lines.push("",
+            "I made this banner with CT Circle Studio, a free tool by @ShoaibCT_. Special thanks to @ShoaibCT_ for building it.",
+            "",
+            "Try it and make your own banner with your favorite CT friends:",
+            "https://ct-circle-studio.vercel.app/");
           return lines.join("\n");
         }
         function updateCaption() {
           if (state.captionDirty) return;
           var box = document.getElementById("captionBox");
           if (box) box.value = buildCaption();
+          refreshPostLinks();
         }
         var captionBox = document.getElementById("captionBox");
         captionBox.addEventListener("input", function () { state.captionDirty = true; });
         document.getElementById("regenCaptionBtn").addEventListener("click", function () {
           state.captionDirty = false;
           updateCaption();
-          showToast("Caption refreshed from your friends list");
+          showToast("Post refreshed from your friends list");
         });
         document.getElementById("copyCaptionBtn").addEventListener("click", function () {
           var text = captionBox.value;
-          function done() { showToast("Caption copied — paste it in your X post"); }
+          function done() { showToast("Post copied — paste it in your X post"); }
           function fallback() {
             captionBox.focus();
             captionBox.select();
@@ -1953,6 +2080,48 @@
             navigator.clipboard.writeText(text).then(done, fallback);
           } else fallback();
         });
+
+        /* ---------- post on X (after download) ---------- */
+
+        function currentPostText() { return captionBox.value || buildCaption(); }
+        function refreshPostLinks() {
+          var url = "https://x.com/intent/post?text=" + encodeURIComponent(currentPostText());
+          ["postOnXBtn", "postOnXBtnShare"].forEach(function (id) {
+            var a = document.getElementById(id);
+            if (a) a.href = url;
+          });
+        }
+        captionBox.addEventListener("input", refreshPostLinks);
+        ["postOnXBtn", "postOnXBtnShare"].forEach(function (id) {
+          var a = document.getElementById(id);
+          if (a) a.addEventListener("click", refreshPostLinks);
+        });
+
+        var postModal = document.getElementById("postModal");
+        function openPostModal() {
+          document.getElementById("postModalImg").src = canvas.toDataURL("image/jpeg", 0.88);
+          document.getElementById("postModalText").textContent = currentPostText();
+          refreshPostLinks();
+          postModal.classList.add("open");
+        }
+        function closePostModal() { postModal.classList.remove("open"); }
+        document.getElementById("postModalClose").addEventListener("click", closePostModal);
+        postModal.addEventListener("click", function (e) { if (e.target === postModal) closePostModal(); });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePostModal(); });
+        document.getElementById("copyPostBtn").addEventListener("click", function () {
+          var text = currentPostText();
+          function done() { showToast("Post copied — paste it in your X post"); }
+          function fallback() {
+            captionBox.focus();
+            captionBox.select();
+            try { document.execCommand("copy"); done(); }
+            catch (err) { showToast("Copy failed — copy the post text from the Share tab"); }
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, fallback);
+          } else fallback();
+        });
+        refreshPostLinks();
 
         var xModal = document.getElementById("xModal");
         function openXPreview() {
@@ -1990,6 +2159,8 @@
             a.remove();
             setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
             showToast("Banner downloaded — " + state.ratio.w + " × " + state.ratio.h + " px " + state.format.toUpperCase());
+            // Step 2: show the ready X post with the banner, ready to share
+            setTimeout(openPostModal, 450);
           };
           if (canvas.toBlob) {
             if (state.format === "jpg") canvas.toBlob(done, "image/jpeg", 0.95);
